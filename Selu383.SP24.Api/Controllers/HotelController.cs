@@ -14,7 +14,6 @@ namespace Selu383.SP24.Api.Controllers
         {
             _context = context;
         }
-
         [HttpGet("{id}")]
         public IActionResult GetHotelById(
             [FromRoute] int id)
@@ -50,5 +49,24 @@ namespace Selu383.SP24.Api.Controllers
                 .ToList();
             return Ok(response);
         }
+        [HttpPost]
+        public IActionResult Create(
+            [FromBody]HotelCreateDto hotelCreateDto)
+        {
+            var response = new Response();
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
+            var newHotel = new Hotel();
+        }
+
+
+
+
+
+
+
+
     }
 }
