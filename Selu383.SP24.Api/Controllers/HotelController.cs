@@ -58,15 +58,61 @@ namespace Selu383.SP24.Api.Controllers
             {
                 return BadRequest(response);
             }
-            var newHotel = new Hotel();
+            var newHotel = new Hotel()
+            {
+                name = hotelCreateDto.name,
+                address = hotelCreateDto.address,
+            };
+            _context.Hotels.Add(newHotel);
+            _context.SaveChanges();
+            var hotelToReturn = new HotelDto
+            {
+                id=newHotel.id,
+                name = hotelCreateDto.name,
+                address = hotelCreateDto.address,
+            };
+            response.Data= hotelToReturn;
+            return Created("", response);
         }
+        [HttpPut("{id}")]
+        public IActionResult Update(
+            [FromRoute] int id,
+            [FromBody] HotelUpdateDto hotelUpdateDto)
+        {
+            var response = new Response();
+            var hotelToUpdate = _context.Hotels.FirstOrDefault(hotel => hotel.id == id);
+            
+            if (hotelToUpdate == null)
+            {
+                response.AddError("id", "Hotel not found");
+                return BadRequest(response);
 
+            }
 
+            var updatedHotelDto = new HotelDto
+            {
+                id = hotelToUpdate.id,
+                name = hotelToUpdate.name,
+                address = hotelToUpdate.address
+            };
+            response.Data = updatedHotelDto;
+            return Ok(response);
+        }
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            var response = new Response();
+            var hotelToDelete = _context.Hotels.FirstOrDefault(hotel => hotel.id == id);
 
-
-
-
-
-
+            if (hotelToDelete == null)
+            {
+                response.AddError("id", "Hotel not found");
+                return BadRequest(response);
+            }
+            _context.Remove(hotelToDelete);
+            _context.SaveChanges();
+            response.Data = true;
+            return Ok(response);
+        }
     }
 }
