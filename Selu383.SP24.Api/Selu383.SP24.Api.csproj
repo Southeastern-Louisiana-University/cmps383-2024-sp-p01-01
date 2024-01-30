@@ -8,6 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <_WebToolingArtifacts Remove="properties\servicedependencies\serviceDependencies.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="properties\servicedependencies\serviceDependencies.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" Version="1.35.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 

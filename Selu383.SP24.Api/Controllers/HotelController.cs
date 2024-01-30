@@ -18,12 +18,10 @@ namespace Selu383.SP24.Api.Controllers
         public IActionResult GetHotelById(
             [FromRoute] int id)
         {
-            var response = new Response();
             var hotel = _context.Hotels.FirstOrDefault(x => x.id == id);
             if (hotel == null)
             {
-                response.AddError("id", "There was a problem finding the hotel.");
-                return NotFound(response);
+                return NotFound("There was a problem finding the hotel.");
             }
             var hotelGetDto = new HotelDto
             {
@@ -31,32 +29,27 @@ namespace Selu383.SP24.Api.Controllers
                 name = hotel.name,
                 address = hotel.address
             };
-            response.Data = hotelGetDto;
-            return Ok(response);
+            return Ok(hotelGetDto);
         }
         [HttpGet]
         public IActionResult GetAll()
         {
-            var response = new Response();
-            response.Data = _context
-                .Hotels
-                .Select(x => new HotelDto
-                {
-                    id = x.id,
-                    name = x.name,
-                    address = x.address
-                })
-                .ToList();
-            return Ok(response);
+            var hotelDtos = _context.Hotels.Select(x => new HotelDto
+            {
+                id = x.id,
+                name = x.name,
+                address = x.address
+            }).ToList();
+
+            return Ok(hotelDtos);
         }
         [HttpPost]
         public IActionResult Create(
             [FromBody] HotelCreateDto hotelCreateDto)
         {
-            var response = new Response();
-            if (response.HasErrors)
+            if (!ModelState.IsValid)
             {
-                return BadRequest(response);
+                return BadRequest(ModelState);
             }
             var newHotel = new Hotel()
             {
@@ -71,21 +64,18 @@ namespace Selu383.SP24.Api.Controllers
                 name = hotelCreateDto.name,
                 address = hotelCreateDto.address,
             };
-            response.Data = hotelToReturn;
-            return Created("", response);
+            return Created("", hotelToReturn);
         }
         [HttpPut("{id}")]
         public IActionResult Update(
             [FromRoute] int id,
             [FromBody] HotelUpdateDto hotelUpdateDto)
         {
-            var response = new Response();
             var hotelToUpdate = _context.Hotels.FirstOrDefault(hotel => hotel.id == id);
 
             if (hotelToUpdate == null)
             {
-                response.AddError("id", "Hotel not found");
-                return BadRequest(response);
+                return NotFound("Hotel not found");
 
             }
 
@@ -95,24 +85,20 @@ namespace Selu383.SP24.Api.Controllers
                 name = hotelToUpdate.name,
                 address = hotelToUpdate.address
             };
-            response.Data = updatedHotelDto;
-            return Ok(response);
+            return Ok(updatedHotelDto);
         }
         [HttpDelete("{id}")]
         public IActionResult Delete([FromRoute] int id)
         {
-            var response = new Response();
             var hotelToDelete = _context.Hotels.FirstOrDefault(hotel => hotel.id == id);
 
             if (hotelToDelete == null)
             {
-                response.AddError("id", "Hotel not found");
-                return BadRequest(response);
+                return NotFound("Hotel not found");
             }
             _context.Remove(hotelToDelete);
             _context.SaveChanges();
-            response.Data = true;
-            return Ok(response);
+            return Ok("Hotel successfully removed");
         }
     }
 }
