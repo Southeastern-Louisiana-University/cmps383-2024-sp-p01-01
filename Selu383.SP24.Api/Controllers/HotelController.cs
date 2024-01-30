@@ -51,6 +51,14 @@ namespace Selu383.SP24.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
+            if (string.IsNullOrEmpty(hotelCreateDto.address))
+            {
+                return BadRequest("Hotel address is required");
+            }
+            if (hotelCreateDto.name.Length > 100)
+            {
+                return BadRequest("Hotel name is too long");
+            }
             var newHotel = new Hotel()
             {
                 name = hotelCreateDto.name,
@@ -64,7 +72,9 @@ namespace Selu383.SP24.Api.Controllers
                 name = hotelCreateDto.name,
                 address = hotelCreateDto.address,
             };
-            return Created("", hotelToReturn);
+            var locationUrl = Url.Action("GetHotelById", new { id = newHotel.id });
+
+            return Created(locationUrl, hotelToReturn);
         }
         [HttpPut("{id}")]
         public IActionResult Update(
