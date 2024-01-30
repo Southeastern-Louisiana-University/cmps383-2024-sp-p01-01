@@ -1,7 +1,7 @@
+using System;
 using Selu383.SP24.Api.Data;
 using Selu383.SP24.Api.Dto;
 using Microsoft.AspNetCore.Mvc;
-using Selu383.SP24.Api.Common;
 
 namespace Selu383.SP24.Api.Controllers
 {
@@ -45,19 +45,19 @@ namespace Selu383.SP24.Api.Controllers
         }
         [HttpPost]
         public IActionResult Create(
-            [FromBody]HotelCreateDto hotelCreateDto)
+            [FromBody] HotelCreateDto hotelCreateDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (string.IsNullOrEmpty(hotelCreateDto.address))
-            {
-                return BadRequest("Hotel address is required");
-            }
             if (hotelCreateDto.name.Length > 100)
             {
                 return BadRequest("Hotel name is too long");
+            }
+            if (string.IsNullOrEmpty(hotelCreateDto.address))
+            {
+                return BadRequest("Hotel address is required");
             }
             var newHotel = new Hotel()
             {
@@ -66,15 +66,7 @@ namespace Selu383.SP24.Api.Controllers
             };
             _context.Hotels.Add(newHotel);
             _context.SaveChanges();
-            var hotelToReturn = new HotelDto
-            {
-                id=newHotel.id,
-                name = hotelCreateDto.name,
-                address = hotelCreateDto.address,
-            };
-            var locationUrl = Url.Action("GetHotelById", new { id = newHotel.id });
-
-            return Created(locationUrl, hotelToReturn);
+            return CreatedAtAction(nameof(GetHotelById), new { Id = newHotel.id }, newHotel);
         }
         [HttpPut("{id}")]
         public IActionResult Update(
@@ -82,13 +74,17 @@ namespace Selu383.SP24.Api.Controllers
             [FromBody] HotelUpdateDto hotelUpdateDto)
         {
             var hotelToUpdate = _context.Hotels.FirstOrDefault(hotel => hotel.id == id);
-            
             if (hotelToUpdate == null)
             {
                 return NotFound("Hotel not found");
-
             }
-
+            if (hotelUpdateDto.name.Length > 100)
+            {
+                return BadRequest("Hotel name is too long");
+            }
+            hotelToUpdate.name = hotelUpdateDto.name;
+            hotelToUpdate.address = hotelUpdateDto.address;
+            _context.SaveChanges();
             var updatedHotelDto = new HotelDto
             {
                 id = hotelToUpdate.id,
